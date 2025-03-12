@@ -442,3 +442,45 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+int sys_hello(void)
+{
+	cprintf("hello world\n");
+	return 0;
+}
+int sys_lseek(void) {
+    int fd, offset, whence;
+    struct file *f;
+
+    if (argint(0, &fd) < 0 || argint(1, &offset) < 0 || argint(2, &whence) < 0)
+        return -1; // Invalid arguments
+
+    if (fd < 0 || fd >= NOFILE || (f = myproc()->ofile[fd]) == 0)
+        return -1; // Invalid file descriptor
+
+    if (f->type != FD_INODE)
+        return -1; // lseek only works on regular files
+
+    switch (whence) {
+        case 0: // SEEK_SET: Set file offset to `offset`
+            if (offset < 0) return -1;
+            f->off = offset;
+            break;
+
+        case 1: // SEEK_CUR: Move from the current position
+            if (f->off + offset < 0) return -1;
+            f->off += offset;
+            break;
+
+        case 2: // SEEK_END: Move from the end of the file
+            if (f->ip->size + offset < 0) return -1;
+            f->off = f->ip->size + offset;
+            break;
+
+        default:
+            return -1; // Invalid `whence` argument
+    }
+
+    return f->off; // Return new offset
+}
+
+

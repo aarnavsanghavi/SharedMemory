@@ -9,11 +9,11 @@
 #include "spinlock.h"
 
 // Interrupt descriptor table (shared by all CPUs).
-struct gatedesc idt[256];
+struct gatedesc idt[256]; //global array of IDT
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
-
+//Running 256 times, and calling a macro SETGATE
 void
 tvinit(void)
 {
